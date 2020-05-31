@@ -1,91 +1,125 @@
-/**Declare Variables**/
-var topics, newButton, newShow, queryURL, showName, results, rating, gifShow, state;
+// JS file for HOMEWORK #6
 
-/**Starting shows arry**/
-topics = ["The Simpsons", "Breaking Bad", "Friends", "Futurama"];
+$(document).ready(function() {
+    // Declaring Initial Array of Topics which is a list of TV Shows
+    var topics = ['The Simpsons', 'Futurama', 'Spongebob Squarepants', 'Friends', 'Boy Meets World', 'Vampire Diaries', 'Gilmore Girls'];
 
-/**Create and Clear buttons on each reload**/
-function makeButtons() {
-	$("#buttons").html("");
+    /// ALL FUNCTIONS
 
-	/** Loop through shows array to make each button **/
-	for (var i=0; i<topics.length; i++) {
-		newButton = $("<button>" + topics[i] + "</button>");
-		newButton.attr("data-name", topics[i]);
-		newButton.addClass("tvshows");
-		$("#buttons").append(newButton);
-	};
-};
+    //Function to display info on the topics by calling an API and retrieving the info 
+    function displayInfo(){
+      $('#show-view').empty();
+      var topic = $(this).attr('data-name');
+      var queryURL = 'https://api.giphy.com/v1/gifs/search?q=' + topic + '&api_key=7yWWp89zKr3OvZfcBlWP0GZ6POxKBpIg&limit=10';
 
-/**On-click event for adding new buttons**/
-$("#add-show").on("click", function(event){
-	event.preventDefault();
-	/** Prevent new button if the input is blank **/
-	if ($("#user-input").val() !== ""){
-		newShow = $("#user-input").val();
-		$("#user-input").val("");
-		topics.push(newShow);
-		makeButtons();
-	}
-});
+      // AJAX call to GET information 
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      })
+      .then(function(response) {
+        // If no information on topics is found, the alert the user
+        if (response.pagination.total_count == 0) {
+          alert('Sorry, there are no Gifs for this topic');
+          var itemindex = topics.indexOf(topic);
+          // otherwise display button
+          if (itemindex > -1) {
+            topics.splice(itemindex, 1);
+            renderButtons();
+            }
+        }
+        
+        // Save response from API call (JSON) to a variable results
+        var results = response.data;
+        for (var j = 0; j < results.length; j++){
+          // Create new Div
+          var newTopicDiv = $("<div class='show-name'>");
+          // Save responses from API into variables and add to DOM
+          // GIF Rating
+          var pRating = $('<p>').text('Rating: ' + results[j].rating.toUpperCase());
+          // GIF Title
+          var pTitle = $('<p>').text('Title: ' + results[j].title.toUpperCase());
+          // GIF URL
+          var gifURL = results[j].images.fixed_height_still.url;         
+          var gif = $('<img>');
+          gif.attr('src', gifURL);
+          gif.attr('data-still', results[j].images.fixed_height_still.url);
+          gif.attr('data-animate', results[j].images.fixed_height.url);
+          gif.attr('data-state', 'still');
+          gif.addClass ('animate-gif');
+          // Appending info 
+          newTopicDiv.append(pRating);
+          newTopicDiv.append(pTitle);
+          newTopicDiv.append(gif);
+           // Putting the saved info to new div
+          $('#show-view').prepend(newTopicDiv);
+        } 
+      });
+    };
+    
+    // Function for displaying buttons
+    function renderButtons() {
+      // Deletes the movies prior to adding new movies
+      $('.buttons-view').empty();
+      // Loops through the array of topics to create buttons for all topics
+      for (var i = 0; i < topics.length; i++) {
+        var createButtons = $('<button>');
+        createButtons.addClass('topic btn btn-info');
+        createButtons.attr('data-name', topics[i]);
+        createButtons.text(topics[i]);
+        $('.buttons-view').append(createButtons);
+      }
+    }
 
-/**Key-press event for adding new buttons from user input**/
-$("#user-input").keypress(function(e){
-	if (e.keyCode === 13 && $("#user-input").val() !== ""){
-		newShow = $("#user-input").val();
-		$("#user-input").val("");
-		topics.push(newShow);
-		makeButtons();
-	}
-})
+    // Function to remove buttons
+    function removeButton(){
+      $("#show-view").empty();
+      var topic = $(this).attr('data-name');
+      var itemindex = topics.indexOf(topic);
+      if (itemindex > -1) {
+        topics.splice(itemindex, 1);
+        renderButtons();
+      }
+    }
 
-/**Display gif function that includes AJAX request**/
-function displayGifs(){
-	$("#gifs").html("");
+    // Function to play or still Gif images
+    function playGif () {
+      var state = $(this).attr('data-state');
+      if (state === 'still') {
+        $(this).attr('src', $(this).attr('data-animate'));
+        $(this).attr('data-state', 'animate');
+      }
+      else {
+        $(this).attr('src' , $(this).attr('data-still'));
+        $(this).attr('data-state', 'still');
+      }
+    }
 
-	showName = $(this).attr("data-name");
-	queryURL = "https://api.giphy.com/v1/gifs/search?q=" + showName + "&api_key=7yWWp89zKr3OvZfcBlWP0GZ6POxKBpIg&limit=10";
-	
-	$.ajax({
-		url: queryURL,
-		method: "GET"
-	}).done(function(response){
-		
-		results = response.data;
+    ///EVENT LISTENERS aka CLICK EVENTS
+    // Click on the submit button to add a new show button
+    $("#add-show").on("click", function(event) {
+      event.preventDefault();
+      // capture input from the form
+      var show = $("#show-input").val().trim();
+      // check if topic exsits already
+      if (topics.toString().toLowerCase().indexOf(show.toLowerCase()) != -1) {
+        alert("Topic already exists");
+      }
+      else {
+        topics.push(show);
+        renderButtons();
+      }
+    });
 
-		for(var j=0; j<results.length; j++){
+    // Click on show button to display Gifs and other info from API
+    $(document).on("click", ".topic", displayInfo);
+    // Click on the Gif image to animate or make it still
+    $(document).on("click", ".animate-gif", playGif);
+    // Double-click on any show button to remove it from the array. Tried this for the first time.
+    $(document).on("dblclick", ".topic", removeButton);
 
-			showDiv = $("<div class='show'>");
-			$("#gifs").append(showDiv);
+    // Calling the renderButtons function to display the intial buttons
+    renderButtons();
 
-			rating = $("<div>Rating: " + results[j].rating + "</div>");
 
-			gifShow = $("<img data-state='still' src='" + results[j].images.fixed_height_still.url + "'>");
-			gifShow.attr("data-still", results[j].images.fixed_height_still.url);
-			gifShow.attr("data-animate", results[j].images.fixed_height.url);
-			gifShow.addClass("gif");
-
-			showDiv.append(rating);
-			showDiv.append(gifShow);
-		};
-	});
-};
-
-/**Function for start/stop gifs**/
-function animateGif(){
-	state = $(this).attr("data-state");
-
-	if (state === "still") {
-		$(this).attr("src", $(this).attr("data-animate"));
-		$(this).attr("data-state", "animate");
-	}
-	else {
-		$(this).attr("src", $(this).attr("data-still"));
-		$(this).attr("data-state", "still");
-	}
-}
-
-/**Call functions for on-click events **/
-makeButtons();
-$(document).on("click", ".tvshows", displayGifs);
-$(document).on("click", ".gif", animateGif);
+}); //PAGE CLOSING BRACKET

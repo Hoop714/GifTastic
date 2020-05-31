@@ -1,53 +1,49 @@
+/* CSS file for Homework #6 */
+
 body {
-    background-color: grey;
-}
-.jumbotron {
-    color: darkgrey;
-    background-color: navy;
-    font-family: cursive;
+    background-image: url("../images/background4.jpg");
+    font-family:'Righteous', cursive;
+    color: white;
 }
 
-.row {
-    margin-left: 50px;
-    margin-right: 50px;
+.topic {
+    margin: 10px;
+   }
+
+.buttons-view {
+    border-radius: 25px;
+    border: 2px solid wheat;
+    padding: 10px;
 }
 
-.footer-zone {
-	background-color: #666666;
-	width: 100%;
-	height: 32px;
-	opacity: 0;
+h2 {
+    letter-spacing: 5px;
+    text-align: center;
+    color:whitesmoke;
 }
 
-.footer {
-	position: fixed;
-	left: 0px;
-	bottom: 0px;
-	background-color: navy;
-	width: 100%;
-	font-size: 12px;
-	text-align: center;
-	padding: 10px 0px;
-	color: darkgrey;
-	margin-top: 30px;
-	border-top: 6px solid whitesmoke;
+h6 {
+    font-style: italic;
+    color: rgb(240, 255, 244);
 }
 
-@media (max-width: 980px) {
-    .jumbotron .row .footer-zone .footer {
-      width: 100%;
-    }
+.topic {
+    font-size: 16px;
+    font-weight: lighter;
 }
-    
-    @media (max-width: 768px) {
-      .jumbotron .row .footer-zone .footer {
-        width: 100%;
-      }
-    }
-    
-    @media (max-width: 640px) {
-      .jumbotron .row .footer-zone .footer {
-        width: 100%;
-      }
 
-    }
+.show-name{
+    margin: 20px;
+    float: left;
+}
+
+p {
+    color:papayawhip;
+    margin-top: 20px;
+    line-height: 16px;
+}
+
+img {
+    border-radius: 20px;
+    margin-top: 2px;
+}
